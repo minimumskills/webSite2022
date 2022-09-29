@@ -11,6 +11,9 @@ const body_error = document.getElementById("body_error");
 const email_exp = /^[a-z0-9.]+@[a-z0-9.]+\.[a-z]+$/;
 const body_exp = /^.{1,10}$/;
 
+//サーバにデータを送信（{deploy_id}は各自の環境に依存）
+const api_url = "https://script.google.com/macros/s/{デプロイID}/exec";
+
 submit_btn.addEventListener("click", (e) => {
     e.preventDefault();
 
@@ -27,7 +30,21 @@ submit_btn.addEventListener("click", (e) => {
     }
 
     if (name_error.classList.contains("hidden") && email_error.classList.contains("hidden") && body_error.classList.contains("hidden")) {
-        alert(`お名前：${contact_name.value}\nemail：${email.value}\nお問合せ内容：${body.value}`);
+        fetch(api_url, {
+            method: "post",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: encodeURI(`name=${contact_name.value}&email=${email.value}&body=${body.value}`)
+        })
+            .then((response) => {
+                response.json().then((json) => {
+                    alert(json.message);
+                });
+            })
+            .catch((error) => {
+                alert(error.message);
+            });
     }
 });
 
